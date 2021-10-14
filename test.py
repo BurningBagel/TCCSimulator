@@ -15,15 +15,15 @@ VERBOSE = True
 
 evaluations = []
 
-def probGenerator(mode):
+def probGenerator(mode,n):
     
-    for i in range(N):
+    for i in range(n):
         if mode == UNIFORM: evaluations.append(round(random.uniform(0,2),4))
         elif mode == LOG: evaluations.append(round(random.lognormvariate(0,1),4)) #Ver se estes parâmetros estão certos
         elif mode == EXPO: evaluations.append(round(random.expovariate(1),4))
 
 
-def simulator(planSize):
+def simulator(items):
     
 
     lootboxes_purchased = []
@@ -37,9 +37,8 @@ def simulator(planSize):
     # if not os.path.exists(f"{OVERWRITE}"): os.mkdir(f"RESET")
 
     for i in range(SIM_N):
-        probGenerator(GEN)
+        probGenerator(GEN,items)
         cons = consumidorBDI.ConsumidorBDI(evaluations)
-        cons.setPlanSize(planSize)
         cons.run()
         if VERBOSE: print(f"progress = {(i/SIM_N) * 100} %")
         lootboxes_purchased.append(cons.getNumBought())
@@ -150,6 +149,7 @@ def main():
     averagesUniquesTrue = []
     averagesLootboxesFalse = []
     averagesUniquesFalse = []
+    totalInstsTrue = []
 
     temp1 = []
     temp2 = []
@@ -161,7 +161,7 @@ def main():
         averagesLootboxesFalse.append(avg(getItemsInsts(temp1,temp3,False)))
         averagesUniquesTrue.append(avg(getItemsInsts(temp2,temp3,True)))
         averagesUniquesFalse.append(avg(getItemsInsts(temp2,temp3,False)))
-
+        totalInstsTrue.append(temp3.count(True))
 
 
         #Find averages and confidence intervals of each vector
@@ -182,6 +182,7 @@ def main():
     makeFig(averagesLootboxesFalse,"Lootboxes purchased","Lootboxes purchased | Instincts not used","purchased_lootboxes_false")
     makeFig(averagesUniquesTrue,"Unique items acquired","Unique items acquired | Instincts used","uniques_acquired_true")
     makeFig(averagesUniquesFalse,"Unique items acquired","Unique items acquired | Instincts not used","uniques_acquired_false")
+    makeFigInst(totalInstsTrue)
     # fig.show()
     
 def makeFig(data,yID,title,filename):
@@ -200,6 +201,20 @@ def makeFig(data,yID,title,filename):
     fig.update_layout(yaxis_range=[8,35])
 
     fig.write_image(f"{filename}.png")
+
+def makeFigInst(insts):
+    margin = mean_confidence_interval(insts)
+    temp = list(range(1,len(insts)+1))
+    df = pd.DataFrame(list(zip(insts,temp)),columns=["Percentage of Instincts used","Plan size"])
+    df["e"] = margin
+    fig = px.bar(df,
+        x = "Plan size",
+        y = "Percentage of Instincts used",
+        title = "Percentage of Instincts used by plan size",
+        error_y="e"
+    )
+
+    fig.write_image("percentInsts.png")
 
 
 if __name__ == "__main__":

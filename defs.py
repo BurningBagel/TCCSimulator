@@ -17,7 +17,7 @@ SS = 7
 
 PRICE = 1/e
 
-PLAN_SIZE = 4
+PLAN_SIZE = 10
 
 INSTINCT = 20
 CONFIDENCE = 10
@@ -32,6 +32,8 @@ NORMAL = 1
 NON_GAMBLER = 2
 
 PERSON_TYPE = NON_GAMBLER
+
+MERCY = True
 
 #Pessoa com alto instinto
 #Pessoa com 
