@@ -27,10 +27,11 @@ class ConsumidorBDI:
         self.numBought = 0
         self.plan = 0
         self.planSize = PLAN_SIZE
-        self.desireGenerator()
+        if MERCY: self.mercyCounter = 10
         # random.seed(29092021)
 
     def run(self):
+        self.desireGenerator()
         self.planner()
         #self.printResults()
 
@@ -59,7 +60,7 @@ class ConsumidorBDI:
             total = self.subsetSum(subset) / i #Value of desire is tempered by amount of lootboxes required
             # if len(subset) == 0: 
             #     pass
-            if total > i*PRICE and len(subset[0]) > 0:
+            if total > PRICE * 1.5 and len(subset[0]) > 0:
                 t = (list(subset),total)
                 self.desires.append(t)
         
@@ -113,7 +114,14 @@ class ConsumidorBDI:
             #     return False
             self.numBought += 1
             # random.seed()
-            purchased = random.choice(list(enumerate(self.evals)))    #purchased é uma tupla de índice e valor
+            if MERCY and self.mercyCounter == 0:
+                purchased = random.choice(self.intention[0])            #purchased é uma tupla de índice e valor
+                self.mercyCounter = 10
+            else:
+                purchased = random.choice(list(enumerate(self.evals)))
+                if MERCY: self.mercyCounter-=1    
+            
+            
             #self.evals[purchased[0]] = 0                        #Agora que ganhei o item, ele não tem mais valor pra mim
             
             if purchased[0] not in self.indexAcquired:          #registra o item ganho

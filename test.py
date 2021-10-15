@@ -23,7 +23,7 @@ def probGenerator(mode,n):
         elif mode == EXPO: evaluations.append(round(random.expovariate(1),4))
 
 
-def simulator(items):
+def simulator(override):
     
 
     lootboxes_purchased = []
@@ -37,8 +37,11 @@ def simulator(items):
     # if not os.path.exists(f"{OVERWRITE}"): os.mkdir(f"RESET")
 
     for i in range(SIM_N):
-        probGenerator(GEN,items)
+        probGenerator(GEN,N)
         cons = consumidorBDI.ConsumidorBDI(evaluations)
+
+        cons.setPlanSize(override)
+        
         cons.run()
         if VERBOSE: print(f"progress = {(i/SIM_N) * 100} %")
         lootboxes_purchased.append(cons.getNumBought())
@@ -143,7 +146,7 @@ def getItemsInsts(list,insts,which):
 
 def main():
     random.seed(29092021)
-    os.chdir("C:/Users/Admin/Desktop/LivrosUnB/TCC/SimPy/FINAL")
+    os.chdir("C:/Users/Admin/Desktop/LivrosUnB/TCC/SimPy/FINALMERCY")
 
     averagesLootboxesTrue = []
     averagesUniquesTrue = []
@@ -178,14 +181,14 @@ def main():
     
     
     
-    makeFig(averagesLootboxesTrue,"Lootboxes purchased","Lootboxes purchased | Instincts used","purchased_lootboxes_true")
-    makeFig(averagesLootboxesFalse,"Lootboxes purchased","Lootboxes purchased | Instincts not used","purchased_lootboxes_false")
-    makeFig(averagesUniquesTrue,"Unique items acquired","Unique items acquired | Instincts used","uniques_acquired_true")
-    makeFig(averagesUniquesFalse,"Unique items acquired","Unique items acquired | Instincts not used","uniques_acquired_false")
+    makeFig(averagesLootboxesTrue,"Lootboxes purchased","Lootboxes purchased | Instincts used","purchased_lootboxes_true",0,60)
+    makeFig(averagesLootboxesFalse,"Lootboxes purchased","Lootboxes purchased | Instincts not used","purchased_lootboxes_false",0,60)
+    makeFig(averagesUniquesTrue,"Unique items acquired","Unique items acquired | Instincts used","uniques_acquired_true",0,18)
+    makeFig(averagesUniquesFalse,"Unique items acquired","Unique items acquired | Instincts not used","uniques_acquired_false",0,18)
     makeFigInst(totalInstsTrue)
     # fig.show()
     
-def makeFig(data,yID,title,filename):
+def makeFig(data,yID,title,filename,low,high):
     margin = mean_confidence_interval(data)
     temp2 = list(range(1,len(data)+1))
     dfLoot = pd.DataFrame(list(zip(data,temp2)),columns=[yID,"Plan size"])
@@ -198,7 +201,7 @@ def makeFig(data,yID,title,filename):
     )
     # fig.add_hline(y=median(temp),line_width=2,line_dash='dash',line_color="red",name="Median",annotation_text="Median",annotation_position="bottom right")
     fig.add_hline(y=avg(data),line_width=2,line_dash='dash',line_color="blue",name="Average",annotation_text="Average",annotation_position="bottom left")
-    fig.update_layout(yaxis_range=[8,35])
+    fig.update_layout(yaxis_range=[low,high])
 
     fig.write_image(f"{filename}.png")
 
