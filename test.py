@@ -1,12 +1,12 @@
-from decimal import localcontext
 import random
 import os
 from functools import reduce
-from supFunc import avg, normalize
+from supFunc import avg
 import consumidorBDI
 from defs import *
 import plotly.express as px
-from statistics import median
+import plotly.graph_objects as go
+#from statistics import median
 import pandas as pd
 import numpy as np
 import scipy.stats
@@ -23,7 +23,7 @@ def probGenerator(mode,n):
         elif mode == EXPO: evaluations.append(round(random.expovariate(1),4))
 
 
-def simulator(override):
+def simulator(override = 0):
     
 
     lootboxes_purchased = []
@@ -40,7 +40,7 @@ def simulator(override):
         probGenerator(GEN,N)
         cons = consumidorBDI.ConsumidorBDI(evaluations)
 
-        cons.setPlanSize(override)
+        # cons.setPlanSize(override)
         
         cons.run()
         if VERBOSE: print(f"progress = {(i/SIM_N) * 100} %")
@@ -123,7 +123,7 @@ def simulator(override):
 def mean_confidence_interval(data,confidence=0.95):
     a = 1.0 * np.array(data)
     n = len(a)
-    m, se = np.mean(a), scipy.stats.sem(a)
+    se = scipy.stats.sem(a)
     h = se * scipy.stats.t.ppf((1+confidence)/2.,n-1)
     return h
 
@@ -145,8 +145,9 @@ def getItemsInsts(list,insts,which):
 
 
 def main():
-    random.seed(29092021)
-    os.chdir("C:/Users/Admin/Desktop/LivrosUnB/TCC/SimPy/FINALMERCY")
+    #random.seed(29092021)
+    random.seed()
+    os.chdir("C:/Users/Admin/Desktop/LivrosUnB/TCC/SimPy/FINAL30/MERCY")
 
     averagesLootboxesTrue = []
     averagesUniquesTrue = []
@@ -158,8 +159,8 @@ def main():
     temp2 = []
     temp3 = []
     
-    for i in range(1,16):
-        temp1, temp2, temp3 = simulator(i)
+    for i in range(30):
+        temp1, temp2, temp3 = simulator()
         averagesLootboxesTrue.append(avg(getItemsInsts(temp1,temp3,True)))
         averagesLootboxesFalse.append(avg(getItemsInsts(temp1,temp3,False)))
         averagesUniquesTrue.append(avg(getItemsInsts(temp2,temp3,True)))
@@ -175,14 +176,15 @@ def main():
 
         # Fazer o mesmo para instinct e confidence. ?????
 
-    if VERBOSE: print("Done! Making plots...")
+    if VERBOSE: 
+        print("Done! Making plots...")
 
     
     
     
     
-    makeFig(averagesLootboxesTrue,"Lootboxes purchased","Lootboxes purchased | Instincts used","purchased_lootboxes_true",0,60)
-    makeFig(averagesLootboxesFalse,"Lootboxes purchased","Lootboxes purchased | Instincts not used","purchased_lootboxes_false",0,60)
+    makeFig(averagesLootboxesTrue,"Lootboxes purchased","Lootboxes purchased | Instincts used","purchased_lootboxes_true",0,35)
+    makeFig(averagesLootboxesFalse,"Lootboxes purchased","Lootboxes purchased | Instincts not used","purchased_lootboxes_false",0,35)
     makeFig(averagesUniquesTrue,"Unique items acquired","Unique items acquired | Instincts used","uniques_acquired_true",0,18)
     makeFig(averagesUniquesFalse,"Unique items acquired","Unique items acquired | Instincts not used","uniques_acquired_false",0,18)
     makeFigInst(totalInstsTrue)
@@ -191,10 +193,11 @@ def main():
 def makeFig(data,yID,title,filename,low,high):
     margin = mean_confidence_interval(data)
     temp2 = list(range(1,len(data)+1))
-    dfLoot = pd.DataFrame(list(zip(data,temp2)),columns=[yID,"Plan size"])
+    dfLoot = pd.DataFrame(list(zip(data,temp2)),columns=[yID,"Set"])
     dfLoot["e"] = margin
+    # dfLoot["e"] = 2
     fig = px.scatter(dfLoot,
-        x = "Plan size",
+        x = "Set",
         y = yID,
         title = title,
         error_y="e"
@@ -208,16 +211,33 @@ def makeFig(data,yID,title,filename,low,high):
 def makeFigInst(insts):
     margin = mean_confidence_interval(insts)
     temp = list(range(1,len(insts)+1))
-    df = pd.DataFrame(list(zip(insts,temp)),columns=["Percentage of Instincts used","Plan size"])
-    df["e"] = margin
-    fig = px.bar(df,
-        x = "Plan size",
-        y = "Percentage of Instincts used",
-        title = "Percentage of Instincts used by plan size",
-        error_y="e"
-    )
+    temp2 = list(map(lambda n: n/SIM_N * 100,insts))
+    # df = pd.DataFrame(list(zip(temp2,temp)),columns=["Percentage of Instincts used","Set"])
+    #df["e"] = margin
+    # df["e"] = 2
+    # fig = px.bar(df,
+    #     x = "Set",
+    #     y = "Percentage of Instincts used",
+    #     title = "Percentage of Instincts used by plan size",
+    #     error_y=dict(type='data',array=[margin]*len(insts),arrayminus=marginCorrector(temp2,margin),symmetric=False)
+    # )
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        name = "Percentage of Instincts used by plan size",
+        x = temp, y = temp2,
+        error_y=dict(type='data',symmetric=False,array=[margin]*len(insts),arrayminus=marginCorrector(temp2,margin))
+    ))
 
     fig.write_image("percentInsts.png")
+
+def marginCorrector(input,margin):
+    result = []
+    for item in input:
+        if item < margin:
+            result.append(item)
+        else:
+            result.append(margin)
+    return result
 
 
 if __name__ == "__main__":

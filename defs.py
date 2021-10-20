@@ -8,7 +8,7 @@ GEN = UNIFORM
 
 N = 15
 
-SIM_N = 100
+SIM_N = 10000
 
 UB = 4
 TB = 5
@@ -17,7 +17,7 @@ SS = 7
 
 PRICE = 1/e
 
-PLAN_SIZE = 10
+PLAN_SIZE = 3
 
 INSTINCT = 20
 CONFIDENCE = 10

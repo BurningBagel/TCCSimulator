@@ -57,10 +57,10 @@ class ConsumidorBDI:
         i = self.planSize
         
         for subset in combinations(enumerate(self.evals),i):
-            total = self.subsetSum(subset) / i #Value of desire is tempered by amount of lootboxes required
+            total = self.subsetSum(subset) #Value of desire is tempered by amount of lootboxes required
             # if len(subset) == 0: 
             #     pass
-            if total > PRICE * 1.5 and len(subset[0]) > 0:
+            if total > PRICE * i :
                 t = (list(subset),total)
                 self.desires.append(t)
         
