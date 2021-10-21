@@ -23,7 +23,7 @@ def probGenerator(mode,n):
         elif mode == EXPO: evaluations.append(round(random.expovariate(1),4))
 
 
-def simulator(override = 0):
+def simulator(j,override = 0):
     
 
     lootboxes_purchased = []
@@ -43,7 +43,7 @@ def simulator(override = 0):
         # cons.setPlanSize(override)
         
         cons.run()
-        if VERBOSE: print(f"progress = {(i/SIM_N) * 100} %")
+        if VERBOSE: print(f"{j} - progress = {(i/SIM_N) * 100} %")
         lootboxes_purchased.append(cons.getNumBought())
         instincts_triggered.append(cons.getInstinct())
         unique_items_acquired.append(len(cons.getUniqueAcquired()))
@@ -160,7 +160,7 @@ def main():
     temp3 = []
     
     for i in range(30):
-        temp1, temp2, temp3 = simulator()
+        temp1, temp2, temp3 = simulator(j = i)
         averagesLootboxesTrue.append(avg(getItemsInsts(temp1,temp3,True)))
         averagesLootboxesFalse.append(avg(getItemsInsts(temp1,temp3,False)))
         averagesUniquesTrue.append(avg(getItemsInsts(temp2,temp3,True)))
@@ -183,8 +183,8 @@ def main():
     
     
     
-    makeFig(averagesLootboxesTrue,"Lootboxes purchased","Lootboxes purchased | Instincts used","purchased_lootboxes_true",0,35)
-    makeFig(averagesLootboxesFalse,"Lootboxes purchased","Lootboxes purchased | Instincts not used","purchased_lootboxes_false",0,35)
+    makeFig(averagesLootboxesTrue,"Lootboxes purchased","Lootboxes purchased | Instincts used","purchased_lootboxes_true",0,75)
+    makeFig(averagesLootboxesFalse,"Lootboxes purchased","Lootboxes purchased | Instincts not used","purchased_lootboxes_false",0,75)
     makeFig(averagesUniquesTrue,"Unique items acquired","Unique items acquired | Instincts used","uniques_acquired_true",0,18)
     makeFig(averagesUniquesFalse,"Unique items acquired","Unique items acquired | Instincts not used","uniques_acquired_false",0,18)
     makeFigInst(totalInstsTrue)
@@ -209,9 +209,9 @@ def makeFig(data,yID,title,filename,low,high):
     fig.write_image(f"{filename}.png")
 
 def makeFigInst(insts):
-    margin = mean_confidence_interval(insts)
     temp = list(range(1,len(insts)+1))
     temp2 = list(map(lambda n: n/SIM_N * 100,insts))
+    margin = mean_confidence_interval(temp2)
     # df = pd.DataFrame(list(zip(temp2,temp)),columns=["Percentage of Instincts used","Set"])
     #df["e"] = margin
     # df["e"] = 2
@@ -223,10 +223,16 @@ def makeFigInst(insts):
     # )
     fig = go.Figure()
     fig.add_trace(go.Bar(
-        name = "Percentage of Instincts used by plan size",
+        name = "Percentage of Instincts used by Set",
         x = temp, y = temp2,
         error_y=dict(type='data',symmetric=False,array=[margin]*len(insts),arrayminus=marginCorrector(temp2,margin))
     ))
+
+    fig.update_layout(
+        title = "Percentage of Instincts used by Set",
+        xaxis_title="Set",
+        yaxis_title="Percentage of instincts used"
+    )
 
     fig.write_image("percentInsts.png")
 
