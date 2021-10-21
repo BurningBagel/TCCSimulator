@@ -1,1 +1,1 @@
-Arquivos: ConsumidorBDI, defs, test(main)
+Arquivos: consumidorBDI, defs, test(main)
