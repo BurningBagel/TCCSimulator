@@ -11,9 +11,7 @@ import pandas as pd
 import numpy as np
 import scipy.stats
 
-VERBOSE = True
 
-PATH = "C:/Users/Admin/Desktop/LivrosUnB/TCC/SimPy/FINAL_FORMULA_2/MERCY"
 
 evaluations = []
 
@@ -58,64 +56,6 @@ def simulator(j,override = 0):
     
 
 
-#     temp = getItemsInsts(lootboxes_purchased,instincts_triggered,True)
-#     temp2 = list(range(1,len(temp)+1))
-#     df = pd.DataFrame(list(zip(temp,temp2)),columns=['Number of lootboxes purchased','iteration'])
-#     fig = px.scatter(df,
-#         x='iteration',
-#         y='Number of lootboxes purchased',
-#         title=f"Lootboxes Purchased | Instincts used",
-#     )
-#     makeFig(fig, temp,"lootboxes_purchased_true",OVERWRITE)
-
-#  #--------------------------------------------------
-#     temp.clear()
-#     temp = getItemsInsts(lootboxes_purchased,instincts_triggered,False)
-#     temp2 = list(range(1,len(temp)+1))
-#     df = pd.DataFrame(list(zip(temp,temp2)),columns=['Number of lootboxes purchased','iteration'])
-#     fig = px.scatter(df,
-#         x='iteration',
-#         y='Number of lootboxes purchased',
-#         title=f"Lootboxes Purchased | Instincts not used"
-#     )
-#     makeFig(fig, temp,"lootboxes_purchased_false",OVERWRITE)
-
-#  #--------------------------------------------------------------------------------------------
-#     temp.clear()
-#     temp = getItemsInsts(unique_items_acquired,instincts_triggered,True)
-#     temp2 = list(range(1,len(temp)+1))
-#     df = pd.DataFrame(list(zip(temp,temp2)),columns=['Unique items acquired','iteration'])
-#     fig = px.scatter(df,
-#         x = 'iteration',
-#         y='Unique items acquired',
-#         title=f"Unique items acquired | Instincts used"
-#     )
-#     makeFig(fig, temp,"unique_items_true",OVERWRITE)
-
-#  #---------------------------------------
-#     temp.clear()
-#     temp = getItemsInsts(unique_items_acquired,instincts_triggered,False)
-#     temp2 = list(range(1,len(temp)+1))
-#     df = pd.DataFrame(list(zip(temp,temp2)),columns=['Unique items acquired','iteration'])
-#     fig = px.scatter(df,
-#         x = 'iteration',
-#         y='Unique items acquired',
-#         title=f"Unique items acquired | Instincts not used"
-#     )
-#     makeFig(fig, temp,"unique_items_false",OVERWRITE)
-
-#  #---------------------------------------------------------------------------------------------
-#     temp.clear()
-#     temp = ['True','False']
-#     temp2 = [instincts_triggered.count(True),instincts_triggered.count(False)]
-#     df = pd.DataFrame(list(zip(temp,temp2)), columns=['key','value'])
-#     fig = px.pie(df,
-#         values='value',
-#         names='key',
-#         title=f"Instincts triggered"
-#     )
-#     # fig.show()
-#     fig.write_image(f"{OVERWRITE}/instincts_triggered.png")
 
 
 
@@ -173,13 +113,7 @@ def main():
         totalInstsTrue.append(temp3.count(True))
 
 
-        #Find averages and confidence intervals of each vector
-        #vline and hrect(y0=lower,y1=upper,opacity=0.2,fillcolor="blue")
-
-        # Consolidar os gráficos do Plan size em 4 gráficos, dois para os lootbox purchased true e false. Eixo x com o tamanho do plan size. Eixo y com a média obtida e intervalo de confiança.
-        # dois para unique itens true e false. Eixo x com o tamanho do plan size. Eixo y com a média obtida e intervalo de confiança.
-
-        # Fazer o mesmo para instinct e confidence. ?????
+        
 
     if VERBOSE: 
         print("Done! Making plots...")

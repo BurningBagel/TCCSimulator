@@ -40,5 +40,9 @@ PERSON_TYPE = NON_GAMBLER
 
 MERCY = True
 
+VERBOSE = True
+
+PATH = "C:/Users/Admin/Desktop/LivrosUnB/TCC/SimPy/FINAL_FORMULA_2/MERCY"
+
 #Pessoa com alto instinto
 #Pessoa com 
