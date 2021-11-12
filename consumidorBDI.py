@@ -60,6 +60,7 @@ class ConsumidorBDI:
             total = self.subsetSum(subset) #Value of desire is tempered by amount of lootboxes required
             # if len(subset) == 0: 
             #     pass
+            if EVALUATION_FORMULA == FRUGAL: total = total / i
             if total > PRICE * i :
                 t = (list(subset),total)
                 self.desires.append(t)

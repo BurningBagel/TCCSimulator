@@ -1,8 +1,11 @@
-from math import e
+from math import e, trunc
 
 UNIFORM = 1
 LOG = 2
 EXPO = 3
+
+BASE = 1
+FRUGAL = 2
 
 GEN = UNIFORM
 
@@ -30,6 +33,8 @@ INSTINCT_THRESHOLD = 5
 
 NORMAL = 1
 NON_GAMBLER = 2
+
+EVALUATION_FORMULA = FRUGAL
 
 PERSON_TYPE = NON_GAMBLER
 

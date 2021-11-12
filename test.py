@@ -13,6 +13,8 @@ import scipy.stats
 
 VERBOSE = True
 
+PATH = "C:/Users/Admin/Desktop/LivrosUnB/TCC/SimPy/FINAL_FORMULA_2/MERCY"
+
 evaluations = []
 
 def probGenerator(mode,n):
@@ -40,7 +42,7 @@ def simulator(j,override = 0):
         probGenerator(GEN,N)
         cons = consumidorBDI.ConsumidorBDI(evaluations)
 
-        # cons.setPlanSize(override)
+        cons.setPlanSize(override)
         
         cons.run()
         if VERBOSE: print(f"{j} - progress = {(i/SIM_N) * 100} %")
@@ -147,7 +149,10 @@ def getItemsInsts(list,insts,which):
 def main():
     #random.seed(29092021)
     random.seed()
-    os.chdir("C:/Users/Admin/Desktop/LivrosUnB/TCC/SimPy/FINAL30/MERCY")
+    if not os.path.exists(PATH):
+        os.mkdir(PATH)
+    
+    os.chdir(PATH)
 
     averagesLootboxesTrue = []
     averagesUniquesTrue = []
@@ -159,8 +164,8 @@ def main():
     temp2 = []
     temp3 = []
     
-    for i in range(30):
-        temp1, temp2, temp3 = simulator(j = i)
+    for i in range(1,16):
+        temp1, temp2, temp3 = simulator(j = i,override=i)
         averagesLootboxesTrue.append(avg(getItemsInsts(temp1,temp3,True)))
         averagesLootboxesFalse.append(avg(getItemsInsts(temp1,temp3,False)))
         averagesUniquesTrue.append(avg(getItemsInsts(temp2,temp3,True)))
@@ -182,9 +187,9 @@ def main():
     
     
     
-    
-    makeFig(averagesLootboxesTrue,"Lootboxes purchased","Lootboxes purchased | Instincts used","purchased_lootboxes_true",0,75)
-    makeFig(averagesLootboxesFalse,"Lootboxes purchased","Lootboxes purchased | Instincts not used","purchased_lootboxes_false",0,75)
+    makeTwoFigs(averagesLootboxesTrue,averagesLootboxesFalse,"purchased_lootoboxes_mixed",0,75)
+    # makeFig(averagesLootboxesTrue,"Lootboxes purchased","Lootboxes purchased | Instincts used","purchased_lootboxes_true",0,75)
+    # makeFig(averagesLootboxesFalse,"Lootboxes purchased","Lootboxes purchased | Instincts not used","purchased_lootboxes_false",0,75)
     makeFig(averagesUniquesTrue,"Unique items acquired","Unique items acquired | Instincts used","uniques_acquired_true",0,18)
     makeFig(averagesUniquesFalse,"Unique items acquired","Unique items acquired | Instincts not used","uniques_acquired_false",0,18)
     makeFigInst(totalInstsTrue)
@@ -193,11 +198,11 @@ def main():
 def makeFig(data,yID,title,filename,low,high):
     margin = mean_confidence_interval(data)
     temp2 = list(range(1,len(data)+1))
-    dfLoot = pd.DataFrame(list(zip(data,temp2)),columns=[yID,"Set"])
+    dfLoot = pd.DataFrame(list(zip(data,temp2)),columns=[yID,"Plan size"])
     dfLoot["e"] = margin
     # dfLoot["e"] = 2
     fig = px.scatter(dfLoot,
-        x = "Set",
+        x = "Plan size",
         y = yID,
         title = title,
         error_y="e"
@@ -208,9 +213,41 @@ def makeFig(data,yID,title,filename,low,high):
 
     fig.write_image(f"{filename}.png")
 
+def makeTwoFigs(data1,data2,filename,low,high):
+    margin1 = mean_confidence_interval(data1)
+    margin2 = mean_confidence_interval(data2)
+    tempRange1 = list(range(1,len(data1)+1))
+    tempRange2 = list(range(1,len(data2)+1))
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        name = "Entraram em modo de instinto",
+        x= tempRange1, y = data1,
+        error_y=dict(type='data',symmetric=False,array=[margin1]*len(data1),arrayminus=marginCorrector(data1,margin1))
+    ))
+
+    fig.add_trace(go.Bar(
+        name = "Não entraram em modo de instinto",
+        x= tempRange2, y = data2,
+        error_y=dict(type='data',symmetric=False,array=[margin2]*len(data2),arrayminus=marginCorrector(data2,margin2))
+    ))
+
+    fig.update_layout(
+        title = "Número de lootboxes compradas por <br>tamanho de plano",
+        xaxis_title="Tamanho de plano",
+        yaxis_title="Número de lootboxes compradas",
+        yaxis_range=[low,high],
+        legend_orientation="h",
+        legend_y=-0.25
+    )
+
+    fig.write_image(f"{filename}.png")
+
 def makeFigInst(insts):
     temp = list(range(1,len(insts)+1))
     temp2 = list(map(lambda n: n/SIM_N * 100,insts))
+    temp3 = list(map(lambda n: 100 - n,temp2))
     margin = mean_confidence_interval(temp2)
     # df = pd.DataFrame(list(zip(temp2,temp)),columns=["Percentage of Instincts used","Set"])
     #df["e"] = margin
@@ -221,17 +258,26 @@ def makeFigInst(insts):
     #     title = "Percentage of Instincts used by plan size",
     #     error_y=dict(type='data',array=[margin]*len(insts),arrayminus=marginCorrector(temp2,margin),symmetric=False)
     # )
-    fig = go.Figure()
-    fig.add_trace(go.Bar(
-        name = "Percentage of Instincts used by Set",
-        x = temp, y = temp2,
-        error_y=dict(type='data',symmetric=False,array=[margin]*len(insts),arrayminus=marginCorrector(temp2,margin))
-    ))
+    fig = go.Figure(
+        data=[
+            go.Bar(name='Consumidores que entraram em modo de instinto', x = temp, y=temp2),
+            go.Bar(name='Consumidores que não entraram em modo de instinto', x = temp, y = temp3)
+        ]
+    )
+    # fig.add_trace(go.Bar(
+    #     name = "Percentage of Instincts used by Plan size",
+    #     x = temp, y = temp2,
+    #     error_y=dict(type='data',symmetric=False,array=[margin]*len(insts),arrayminus=marginCorrector(temp2,margin))
+    # ))
 
     fig.update_layout(
-        title = "Percentage of Instincts used by Set",
-        xaxis_title="Set",
-        yaxis_title="Percentage of instincts used"
+        title = "Porcentagem de consumidores que entraram em modo de instinto por <br>tamanho de plano",
+        xaxis_title="Tamanho de plano",
+        yaxis_title="População total",
+        yaxis_range=[0,100],
+        barmode='stack',
+        legend_orientation="h",
+        legend_y=-0.25
     )
 
     fig.write_image("percentInsts.png")
