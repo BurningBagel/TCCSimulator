@@ -1,0 +1,15 @@
+*.png
+*.pptx
+*.zip
+schooltest.py
+1810/
+_pycache_/
+.vscode/
+CONFIDENCE/
+FINAL/
+FINAL_FORMULA_2/
+FINAL30/
+FINAL100K/
+INSTINCTS/
+PLAN_SIZE/
+TESTTEST/
